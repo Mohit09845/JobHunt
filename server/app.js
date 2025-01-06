@@ -15,4 +15,10 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+import userRoute from './route/user.route.js';
+import companyRoute from './route/company.route.js';
+
+app.use('/api/v1/user',userRoute);
+app.use('/api/v1/company',companyRoute);
+
 export {app};
