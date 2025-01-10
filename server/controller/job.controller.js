@@ -46,42 +46,59 @@ export const postJob = asyncHandler(async (req, res) => {
     );
 });
 
-export const getAllJobs = asyncHandler(async(req,res)=>{
+export const getAllJobs = asyncHandler(async (req, res) => {
     const keyword = req.query.keyword || '';
 
     const query = {
         $or: [
-            {title: {$regex:keyword,$options: 'i'}},
-            {description: {$regex:keyword,$options: 'i'}}
+            { title: { $regex: keyword, $options: 'i' } },
+            { description: { $regex: keyword, $options: 'i' } }
         ]
     }
 
-    const jobs = await Job.find(query).populate('company')
+    const jobs = await Job.find(query).populate({ path: 'company' }).sort({ createdAt: -1 })
 
-    if(!jobs){
-        throw new ApiError(404,'jobs not found')
+    if (!jobs) {
+        throw new ApiError(404, 'jobs not found')
     }
 
     return res.status(200).json(
-        new ApiResponse(200,jobs,'Jobs fetched successfully')
+        new ApiResponse(200, jobs, 'Jobs fetched successfully')
     )
 })
 
-export const getJobByid = asyncHandler(async(req,res)=>{
-    const jobId = req.params;
+export const getJobByid = asyncHandler(async (req, res) => {
+    const {jobId} = req.params;
 
-    if(!jobId || !isValidObjectId(jobId)){
-        throw new ApiError(400,'JobId is not valid')
+    if (!jobId || !isValidObjectId(jobId)) {
+        throw new ApiError(400, 'JobId is not valid')
     }
 
     const job = await Job.findById(jobId);
 
-    if(!job){
-        throw new ApiError(404,'Job not found')
+    if (!job) {
+        throw new ApiError(404, 'Job not found')
     }
 
     return res.status(200).json(
-        new ApiResponse(200,jon,'Job fetched successfully')
+        new ApiResponse(200, job, 'Job fetched successfully')
     )
 })
 
+export const getAdminjobs = asyncHandler(async (req, res) => {
+    const userId = req.user?._id;
+
+    if (!userId || !isValidObjectId(userId)) {
+        throw new ApiError(400, 'Invalid userId')
+    }
+
+    const jobs = await Job.find({ created_by: userId })
+
+    if (!jobs) {
+        throw new ApiError(404, 'Jobs not found')
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, jobs, 'Jobs fetched')
+    )
+})

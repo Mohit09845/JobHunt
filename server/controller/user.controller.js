@@ -77,7 +77,7 @@ export const logout = asyncHandler(async (req, res) => {
 
 export const updateProfile = asyncHandler(async (req, res) => {
     const { fullName, email, phoneNumber, bio, skills } = req.body;
-
+    
     if (!req.user?._id) {
         throw new ApiError(401, 'Unauthorized access');
     }
